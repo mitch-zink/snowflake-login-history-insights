@@ -60,7 +60,6 @@ def fetch_login_history(connection, start_date, end_date):
            count(*) as login_count
     FROM snowflake.account_usage.login_history
     WHERE event_timestamp BETWEEN '{start_date}' AND '{end_date}'
-      --AND USER_NAME = 'MITCH'
     GROUP BY client_ip, user_name
     """
     try:
