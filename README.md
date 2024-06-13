@@ -5,7 +5,10 @@
 [![Snowflake](https://img.shields.io/badge/-Snowflake-29B5E8?style=for-the-badge&logo=snowflake&logoColor=white)](https://snowflake.com/)
 [![Streamlit](https://img.shields.io/badge/-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
 
-Snowflake login history gets locally computed using ip to geo location data
+This application 
+1. Hits the snowflake.account_usage.login_history table to fetch the IPs, usernames, and login counts
+2. Uses IP2LOCATION data to convert the IP to a location
+3. Displays a map and table showing you the City, State, IP, username, and login counts
 
 ## Setup Instructions
 
