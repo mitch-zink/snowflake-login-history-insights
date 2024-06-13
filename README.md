@@ -1,4 +1,4 @@
-# Snowflake Table to CSV Data Exporter 📈
+# Snowflake Login History Insights
 <!---
 [![Open with Streamlit](https://img.shields.io/badge/-Open%20with%20Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://snow-table-to-csv-exporter.streamlit.app/) 
 --->
