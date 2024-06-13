@@ -1,3 +1,6 @@
+# Author: Mitch Zink
+# Last Updated: 6/13/2024
+
 import streamlit as st
 import snowflake.connector
 import pandas as pd
