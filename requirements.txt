@@ -2,3 +2,6 @@ pandas==2.2.2
 snowflake-connector-python==3.10.1
 streamlit==1.35.0
 ip2location==8.10.2
+iso3166
+scikit-learn
+numpy
