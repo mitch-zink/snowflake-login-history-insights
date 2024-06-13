@@ -9,6 +9,7 @@ import os
 from datetime import datetime, timedelta
 from iso3166 import countries_by_alpha2
 
+
 def set_env_variables(account, user, password):
     """Set environment variables for Snowflake connection"""
     os.environ["SNOWFLAKE_ACCOUNT"] = account
@@ -16,17 +17,25 @@ def set_env_variables(account, user, password):
     if password:
         os.environ["SNOWFLAKE_PASSWORD"] = password
 
-def create_snowflake_connection(user, account, password=None, authenticator="externalbrowser"):
+
+def create_snowflake_connection(
+    user, account, password=None, authenticator="externalbrowser"
+):
     """Create and return a Snowflake connection"""
     try:
         if authenticator == "externalbrowser":
-            snowflake_conn = snowflake.connector.connect(user=user, account=account, authenticator=authenticator)
+            snowflake_conn = snowflake.connector.connect(
+                user=user, account=account, authenticator=authenticator
+            )
         else:
-            snowflake_conn = snowflake.connector.connect(user=user, account=account, password=password)
+            snowflake_conn = snowflake.connector.connect(
+                user=user, account=account, password=password
+            )
         return snowflake_conn
     except Exception as e:
         st.error(f"Error connecting to Snowflake: {e}")
         return None
+
 
 def get_full_country_name(country_code):
     """Convert country code to full country name"""
@@ -34,6 +43,7 @@ def get_full_country_name(country_code):
         return countries_by_alpha2[country_code].name
     except KeyError:
         return country_code
+
 
 def get_geo_info(ip, ip2location_db):
     """Get geolocation information for a given IP address"""
@@ -62,6 +72,7 @@ def get_geo_info(ip, ip2location_db):
             "longitude": None,
         }
 
+
 def fetch_login_history(connection, start_date, end_date, user_name=None):
     """Fetch login history from Snowflake within a date range, optionally filtered by user name"""
     user_filter = f"AND user_name = '{user_name}'" if user_name else ""
@@ -79,6 +90,7 @@ def fetch_login_history(connection, start_date, end_date, user_name=None):
     except Exception as e:
         st.error(f"Error fetching login history: {e}")
         return []
+
 
 def main():
     # Set Streamlit page configuration
@@ -100,14 +112,20 @@ def main():
         authenticator = "externalbrowser"
 
     # Sidebar inputs for date range
-    START_DATE = st.sidebar.date_input("Start Date", datetime.now().date() - timedelta(days=1))
+    START_DATE = st.sidebar.date_input(
+        "Start Date", datetime.now().date() - timedelta(days=1)
+    )
     END_DATE = st.sidebar.date_input("End Date", datetime.now().date())
 
     # Optional input for user name filter
-    USER_NAME_FILTER = st.sidebar.text_input("User Name Filter", placeholder="Enter user name to filter (optional)")
+    USER_NAME_FILTER = st.sidebar.text_input(
+        "User Name Filter", placeholder="Enter user name to filter (optional)"
+    )
 
     # Path to IP2Location database
-    IP2LOCATION_DB_PATH = "IP2LOCATION/IP2LOCATION-LITE-DB5.BIN/IP2LOCATION-LITE-DB5.BIN"
+    IP2LOCATION_DB_PATH = (
+        "IP2LOCATION/IP2LOCATION-LITE-DB5.BIN/IP2LOCATION-LITE-DB5.BIN"
+    )
 
     # Fetch and map data when button is clicked
     if st.sidebar.button("Fetch and Map Data"):
@@ -117,10 +135,14 @@ def main():
             set_env_variables(ACCOUNT, USER, PASSWORD)
 
             with st.spinner("Connecting to Snowflake..."):
-                snowflake_conn = create_snowflake_connection(USER, ACCOUNT, PASSWORD, authenticator)
+                snowflake_conn = create_snowflake_connection(
+                    USER, ACCOUNT, PASSWORD, authenticator
+                )
 
             if snowflake_conn:
-                login_history_data = fetch_login_history(snowflake_conn, START_DATE, END_DATE, USER_NAME_FILTER)
+                login_history_data = fetch_login_history(
+                    snowflake_conn, START_DATE, END_DATE, USER_NAME_FILTER
+                )
                 snowflake_conn.close()
 
                 if login_history_data:
@@ -138,14 +160,16 @@ def main():
                         geo_info.setdefault("latitude", None)
                         geo_info.setdefault("longitude", None)
 
-                    geo_df = pd.DataFrame(geo_info_list).dropna(subset=["latitude", "longitude"])
+                    geo_df = pd.DataFrame(geo_info_list).dropna(
+                        subset=["latitude", "longitude"]
+                    )
                     geo_df["latitude"] = geo_df["latitude"].astype(float)
                     geo_df["longitude"] = geo_df["longitude"].astype(float)
 
                     # Display summary tiles
-                    num_countries = geo_df['country_name'].nunique()
-                    num_users = geo_df['user_name'].nunique()
-                    num_logins = geo_df['login_count'].sum()
+                    num_countries = geo_df["country_name"].nunique()
+                    num_users = geo_df["user_name"].nunique()
+                    num_logins = geo_df["login_count"].sum()
 
                     col1, col2, col3 = st.columns(3)
                     col1.metric("Countries", num_countries)
@@ -156,16 +180,30 @@ def main():
                     st.map(geo_df)  # Display map for login data
 
                     # Calculate and display login counts by country
-                    country_counts = geo_df.groupby("country_name")["login_count"].sum().reset_index()
+                    country_counts = (
+                        geo_df.groupby("country_name")["login_count"]
+                        .sum()
+                        .reset_index()
+                    )
                     country_counts = country_counts[country_counts["login_count"] > 0]
-                    country_counts = country_counts.sort_values(by="login_count", ascending=False)
+                    country_counts = country_counts.sort_values(
+                        by="login_count", ascending=False
+                    )
 
                     st.subheader("# of Logins by Country")
-                    st.bar_chart(country_counts.set_index("country_name")["login_count"])  # Display bar chart
-                    st.dataframe(country_counts, width=1600)  # Display country login counts in table
+                    st.bar_chart(
+                        country_counts.set_index("country_name")["login_count"]
+                    )  # Display bar chart
+                    st.dataframe(
+                        country_counts, width=1600
+                    )  # Display country login counts in table
 
                     st.subheader("Detailed List of Logins by IP")
-                    st.dataframe(geo_df.sort_values(by="login_count", ascending=False), width=1600)  # Display geolocation data in table
+                    st.dataframe(
+                        geo_df.sort_values(by="login_count", ascending=False),
+                        width=1600,
+                    )  # Display geolocation data in table
+
 
 if __name__ == "__main__":
     main()
