@@ -1,11 +1,10 @@
 import streamlit as st
 import snowflake.connector
 import pandas as pd
-from IP2Location import IP2Location  # Correct import statement
+from IP2Location import IP2Location  
 import os
 from datetime import datetime, timedelta
 
-# Streamlit page setup
 st.set_page_config(layout="wide")
 st.title("Snowflake Login History")
 st.sidebar.header("Configuration")
