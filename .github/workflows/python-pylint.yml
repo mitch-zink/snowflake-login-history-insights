@@ -2,7 +2,7 @@ name: python-pylint
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, snowflake-login-history-insights]
     strategy:
       matrix:
         python-version: ["3.10"]
